@@ -31,6 +31,7 @@ jobs:
           echo "kff_version=$(prop kff_version)" >> "$GITHUB_OUTPUT"
           echo "fabric_api_version=$(prop fabric_api_version)" >> "$GITHUB_OUTPUT"
           echo "fabric_kotlin_version=$(prop fabric_kotlin_version)" >> "$GITHUB_OUTPUT"
+          echo "modmenu_version=$(prop modmenu_version)" >> "$GITHUB_OUTPUT"
 
       - name: Check tag
         if: startsWith(github.ref, 'refs/tags/')
@@ -68,7 +69,8 @@ jobs:
             release-assets \
             "${{ steps.versions.outputs.kff_version }}" \
             "${{ steps.versions.outputs.fabric_api_version }}" \
-            "${{ steps.versions.outputs.fabric_kotlin_version }}"
+            "${{ steps.versions.outputs.fabric_kotlin_version }}" \
+            "${{ steps.versions.outputs.modmenu_version }}"
 
       - name: Publish GitHub releases
         env:
@@ -81,11 +83,11 @@ jobs:
           rm -rf release-split
           mkdir -p release-split/minecraft-1.21.1-neoforge release-split/minecraft-1.21.1-fabric
           printf '%s\n' "mods memory viewer for minecraft 1.21.1 neoforge" > release-split/minecraft-1.21.1-neoforge/title.txt
-          printf '%s\n' "Minecraft **1.21.1** / NeoForge. The mod jar and Kotlin for Forge are required. The key starts unbound; use \`/modsmemory\`. \`all-jars.zip\` contains every jar on this page." > release-split/minecraft-1.21.1-neoforge/body.md
+          printf '%s\n' "Minecraft **1.21.1** / NeoForge. The mod jar and Kotlin for Forge are required. Open the memory table from the Mods button. The key starts unbound; \`/modsmemory\` opens the same screen. \`all-jars.zip\` contains every jar on this page." > release-split/minecraft-1.21.1-neoforge/body.md
           cp -v release-assets/modsmemoryviewer-neoforge-*.jar release-assets/kotlinforforge-*.jar release-split/minecraft-1.21.1-neoforge/
           printf '%s\n' "mods memory viewer for minecraft 1.21.1 fabric" > release-split/minecraft-1.21.1-fabric/title.txt
-          printf '%s\n' "Minecraft **1.21.1** / Fabric. The mod is client-only. Fabric API and Fabric Language Kotlin are required. The key starts unbound; use \`/modsmemory\`. \`all-jars.zip\` contains every jar on this page." > release-split/minecraft-1.21.1-fabric/body.md
-          cp -v release-assets/modsmemoryviewer-fabric-*.jar release-assets/fabric-api-*.jar release-assets/fabric-language-kotlin-*.jar release-split/minecraft-1.21.1-fabric/
+          printf '%s\n' "Minecraft **1.21.1** / Fabric. The mod is client-only. Fabric API, Fabric Language Kotlin, and Mod Menu are required. Open the memory table from the Mods button. The key starts unbound; \`/modsmemory\` opens the same screen. \`all-jars.zip\` contains every jar on this page." > release-split/minecraft-1.21.1-fabric/body.md
+          cp -v release-assets/modsmemoryviewer-fabric-*.jar release-assets/fabric-api-*.jar release-assets/fabric-language-kotlin-*.jar release-assets/modmenu-*.jar release-split/minecraft-1.21.1-fabric/
           python3 .github/scripts/publish-split-releases.py release-split
 
       - name: Check Modrinth token
@@ -115,7 +117,7 @@ jobs:
           name: ${{ steps.versions.outputs.mod_version }}
           version: ${{ steps.versions.outputs.mod_version }}
           version-type: release
-          changelog: NeoForge 1.21.1. Client memory screen. Command /modsmemory.
+          changelog: NeoForge 1.21.1. The Mods button opens a table of current heap use, heaviest first.
           loaders: neoforge
           environment: client
           game-versions: "1.21.1"
@@ -134,7 +136,7 @@ jobs:
           name: ${{ steps.versions.outputs.mod_version }}-fabric
           version: ${{ steps.versions.outputs.mod_version }}-fabric
           version-type: release
-          changelog: Fabric 1.21.1. Client-only memory screen. Command /modsmemory.
+          changelog: Fabric 1.21.1. Client-only. The Mods button opens a table of current heap use, heaviest first.
           loaders: fabric
           environment: client
           game-versions: "1.21.1"
@@ -143,6 +145,7 @@ jobs:
           dependencies: |
             fabric-api(required){modrinth:P7dR8mSH}
             fabric-language-kotlin(required){modrinth:Ha28R6CL}
+            modmenu(required){modrinth:mOgUt4GM}
 
       - name: Delete replaced Modrinth versions
         if: steps.modrinth_token.outputs.present == 'true'

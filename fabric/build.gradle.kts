@@ -38,12 +38,21 @@ sourceSets.named("main") {
     resources.srcDir(rootProject.file("src/main/resources"))
 }
 
+repositories {
+    maven {
+        name = "Terraformers"
+        url = uri("https://maven.terraformersmc.com/releases/")
+    }
+}
+
 dependencies {
     minecraft("com.mojang:minecraft:${prop("minecraft_version")}")
     mappings(loom.officialMojangMappings())
     modImplementation("net.fabricmc:fabric-loader:${prop("fabric_loader_version")}")
     modImplementation("net.fabricmc.fabric-api:fabric-api:${prop("fabric_api_version")}")
     modImplementation("net.fabricmc:fabric-language-kotlin:${prop("fabric_kotlin_version")}")
+    modCompileOnly("com.terraformersmc:modmenu:${prop("modmenu_version")}")
+    modLocalRuntime("com.terraformersmc:modmenu:${prop("modmenu_version")}")
 }
 
 tasks.processResources {

@@ -4,4 +4,6 @@
 
 Свой код, лицензия MPL-2.0. MemoryCatcher не декомпилировать и не копировать: у него All Rights Reserved и нет публичного исходника. Замер — гистограмма классов JVM и индекс `.class` в jar модов, включая один уровень `META-INF/jars`.
 
-Fabric: `environment: client`, точка входа только `client`. NeoForge на выделенном сервере загружается и не открывает экран. McnCDN из этого репозитория не публикуется.
+Экран — таблица в настройках мода: кнопка Mods. Fabric открывает её через Mod Menu (`modmenu` entrypoint, `modCompileOnly` и `modLocalRuntime` 11.0.4). NeoForge — через `IConfigScreenFactory` на `ModContainer`, только при `Dist.CLIENT`. Строки отсортированы по байтам, в строке МиБ и процент.
+
+Fabric: `environment: client`, точки входа `client` и `modmenu`. NeoForge на выделенном сервере загружается и не открывает экран. McnCDN из этого репозитория не публикуется.

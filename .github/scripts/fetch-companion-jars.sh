@@ -1,12 +1,13 @@
 #!/usr/bin/env bash
 # Downloads companion jars from Modrinth and checks SHA-512.
-# Arguments: <directory> <Kotlin for Forge version> <Fabric API version> <Fabric Language Kotlin version>
+# Arguments: <directory> <Kotlin for Forge version> <Fabric API version> <Fabric Language Kotlin version> <Mod Menu version>
 set -euo pipefail
 
 OUT_DIR="${1:?destination directory}"
 KFF_VERSION="${2:?kotlin-for-forge version_number}"
 FABRIC_API_VERSION="${3:?fabric-api version_number}"
 FABRIC_KOTLIN_VERSION="${4:?fabric-language-kotlin version_number}"
+MODMENU_VERSION="${5:?modmenu version_number}"
 USER_AGENT="${MODRINTH_USER_AGENT:-Nergan/mods-memory-viewer-mod (https://github.com/Nergan/mods-memory-viewer-mod)}"
 
 mkdir -p "${OUT_DIR}"
@@ -62,3 +63,4 @@ fetch_modrinth() {
 fetch_modrinth "kotlin-for-forge" "${KFF_VERSION}"
 fetch_modrinth "fabric-api" "${FABRIC_API_VERSION}"
 fetch_modrinth "fabric-language-kotlin" "${FABRIC_KOTLIN_VERSION}"
+fetch_modrinth "modmenu" "${MODMENU_VERSION}"

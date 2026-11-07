@@ -14,7 +14,11 @@ import net.minecraft.network.chat.Component
 import org.lwjgl.glfw.GLFW
 import org.slf4j.LoggerFactory
 
-class MemoryScreen(private val report: MemoryReport) : Screen(Component.translatable("modsmemoryviewer.screen.title")) {
+class MemoryScreen(
+    private val parent: Screen?,
+    private val report: MemoryReport,
+) : Screen(Component.translatable("modsmemoryviewer.screen.title")) {
+    private val rows = report.rows.sortedByDescending { it.bytes }
     private var scroll = 0
 
     override fun init() {
@@ -23,6 +27,10 @@ class MemoryScreen(private val report: MemoryReport) : Screen(Component.translat
                 refresh()
             }.bounds(this.width / 2 - 50, this.height - 28, 100, 20).build(),
         )
+    }
+
+    override fun onClose() {
+        minecraft?.setScreen(parent)
     }
 
     override fun keyPressed(keyCode: Int, scanCode: Int, modifiers: Int): Boolean {
@@ -36,14 +44,6 @@ class MemoryScreen(private val report: MemoryReport) : Screen(Component.translat
         return super.keyPressed(keyCode, scanCode, modifiers)
     }
 
-    private fun refresh() {
-        val now = System.nanoTime()
-        if (now < nextRefreshAt) {
-            return
-        }
-        minecraft?.setScreen(measure("refresh"))
-    }
-
     override fun keyReleased(keyCode: Int, scanCode: Int, modifiers: Int): Boolean {
         if (keyCode == GLFW.GLFW_KEY_R) {
             refreshHeld = false
@@ -51,65 +51,112 @@ class MemoryScreen(private val report: MemoryReport) : Screen(Component.translat
         return super.keyReleased(keyCode, scanCode, modifiers)
     }
 
+    private fun refresh() {
+        val now = System.nanoTime()
+        if (now < nextRefreshAt) {
+            return
+        }
+        minecraft?.setScreen(measure(parent, "refresh"))
+    }
+
     override fun render(graphics: GuiGraphics, mouseX: Int, mouseY: Int, partialTick: Float) {
         super.render(graphics, mouseX, mouseY, partialTick)
-        var y = 12 - scroll
-        fun draw(component: Component) {
-            if (y in 8 until this.height - 36) {
-                graphics.drawString(this.font, component, 12, y, WHITE)
-            }
-            y += LINE
-        }
-        draw(
+        graphics.drawCenteredString(this.font, this.title, this.width / 2, 8, WHITE)
+        graphics.drawCenteredString(
+            this.font,
             Component.translatable(
                 "modsmemoryviewer.screen.heap",
                 format(report.heap.used),
                 format(report.heap.committed),
                 format(report.heap.max),
             ),
+            this.width / 2,
+            22,
+            WHITE,
         )
-        draw(Component.translatable("modsmemoryviewer.screen.total", format(report.histogramBytes)))
         val error = report.error
         if (error != null) {
-            draw(Component.translatable("modsmemoryviewer.screen.error", error))
+            graphics.drawString(
+                this.font,
+                Component.translatable("modsmemoryviewer.screen.error", error),
+                12,
+                HEADER_Y,
+                WHITE,
+            )
+            return
         }
-        val total = report.rows.sumOf { it.bytes }.coerceAtLeast(1L)
-        for (row in report.rows) {
-            draw(rowLine(row, total))
+        val nameX = 12
+        val memoryRight = this.width - 72
+        val percentRight = this.width - 12
+        val nameWidth = (memoryRight - 64 - nameX).coerceAtLeast(40)
+        graphics.fill(8, HEADER_Y - 2, this.width - 8, HEADER_Y + HEADER, HEADER_BG)
+        drawCell(graphics, Component.translatable("modsmemoryviewer.screen.column.mod").string, nameX, HEADER_Y, nameWidth, false)
+        drawRight(graphics, Component.translatable("modsmemoryviewer.screen.column.memory").string, memoryRight, HEADER_Y)
+        drawRight(graphics, Component.translatable("modsmemoryviewer.screen.column.share").string, percentRight, HEADER_Y)
+        val listTop = HEADER_Y + HEADER + 2
+        val listBottom = this.height - 36
+        graphics.enableScissor(0, listTop, this.width, listBottom)
+        val total = rows.sumOf { it.bytes }.coerceAtLeast(1L)
+        rows.forEachIndexed { index, row ->
+            val y = listTop + index * ROW - scroll
+            if (y + ROW < listTop || y > listBottom) {
+                return@forEachIndexed
+            }
+            val background = if (index % 2 == 0) ROW_BG else ROW_BG_ALT
+            graphics.fill(8, y, this.width - 8, y + ROW, background)
+            drawCell(graphics, label(row), nameX, y + 2, nameWidth, true)
+            drawRight(graphics, format(row.bytes), memoryRight, y + 2)
+            drawRight(graphics, percent(row.bytes, total), percentRight, y + 2)
         }
+        graphics.disableScissor()
     }
 
     override fun mouseScrolled(mouseX: Double, mouseY: Double, scrollX: Double, scrollY: Double): Boolean {
-        val max = (report.rows.size * LINE).coerceAtLeast(0)
-        scroll = (scroll - (scrollY * LINE).toInt()).coerceIn(0, max)
+        val view = (this.height - 36) - (HEADER_Y + HEADER + 2)
+        val max = (rows.size * ROW - view).coerceAtLeast(0)
+        scroll = (scroll - (scrollY * ROW).toInt()).coerceIn(0, max)
         return true
     }
 
-    private fun rowLine(row: ModUsage, total: Long): Component {
-        val name = if (row.id == MemoryReport.MINECRAFT) {
-            Component.translatable("modsmemoryviewer.row.minecraft")
-        } else {
-            Component.literal(row.label)
+    private fun label(row: ModUsage): String {
+        if (row.id == MemoryReport.MINECRAFT) {
+            return Component.translatable("modsmemoryviewer.row.minecraft").string
         }
-        val percent = String.format(Locale.ROOT, "%.1f%%", row.bytes * 100.0 / total)
-        return Component.translatable(
-            "modsmemoryviewer.screen.row",
-            name,
-            format(row.bytes),
-            percent,
-            row.instances,
-        )
+        return row.label
+    }
+
+    private fun drawCell(graphics: GuiGraphics, text: String, x: Int, y: Int, maxWidth: Int, trim: Boolean) {
+        val shown = if (trim) fit(text, maxWidth) else text
+        graphics.drawString(this.font, shown, x, y, WHITE)
+    }
+
+    private fun drawRight(graphics: GuiGraphics, text: String, right: Int, y: Int) {
+        graphics.drawString(this.font, text, right - this.font.width(text), y, WHITE)
+    }
+
+    private fun fit(text: String, maxWidth: Int): String {
+        if (this.font.width(text) <= maxWidth) return text
+        var end = text.length
+        while (end > 0 && this.font.width(text.substring(0, end) + "...") > maxWidth) {
+            end--
+        }
+        return text.substring(0, end) + "..."
     }
 
     companion object {
-        private const val LINE = 11
+        private const val ROW = 12
+        private const val HEADER = 14
+        private const val HEADER_Y = 36
         private const val WHITE = -1
+        private val HEADER_BG = 0xFF243044.toInt()
+        private val ROW_BG = 0xFF1A222C.toInt()
+        private val ROW_BG_ALT = 0xFF141A22.toInt()
         private const val REFRESH_GAP_NANOS = 2_000_000_000L
         private val LOGGER = LoggerFactory.getLogger(ModsMemoryViewer.MOD_ID)
         private var refreshHeld = false
         private var nextRefreshAt = 0L
 
-        fun measure(reason: String = "command"): MemoryScreen {
+        fun measure(parent: Screen?, reason: String): MemoryScreen {
             val report = try {
                 MemoryReports.collect(ModSources.provider())
             } catch (error: Throwable) {
@@ -122,12 +169,19 @@ class MemoryScreen(private val report: MemoryReport) : Screen(Component.translat
                 reason,
             )
             nextRefreshAt = System.nanoTime() + REFRESH_GAP_NANOS
-            return MemoryScreen(report)
+            return MemoryScreen(parent, report)
         }
 
         private fun format(bytes: Long): String {
             if (bytes < 0) return "?"
-            return String.format(Locale.ROOT, "%.1f MiB", bytes / (1024.0 * 1024.0))
+            val mib = bytes / (1024.0 * 1024.0)
+            if (mib >= 10.0) {
+                return String.format(Locale.ROOT, "%.1f", mib)
+            }
+            return String.format(Locale.ROOT, "%.2f", mib)
         }
+
+        private fun percent(bytes: Long, total: Long): String =
+            String.format(Locale.ROOT, "%.1f%%", bytes * 100.0 / total)
     }
 }
