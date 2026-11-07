@@ -1,13 +1,11 @@
 {
   "modsmemoryviewer.screen.title": "Mods Memory Viewer",
+  "modsmemoryviewer.screen.close": "×",
   "modsmemoryviewer.screen.refresh": "Refresh",
   "modsmemoryviewer.screen.heap": "Heap used %s MiB, committed %s MiB, max %s MiB",
   "modsmemoryviewer.screen.column.mod": "Mod",
   "modsmemoryviewer.screen.column.memory": "MiB",
   "modsmemoryviewer.screen.column.share": "%",
   "modsmemoryviewer.screen.error": "Could not read the class histogram: %s",
-  "modsmemoryviewer.row.minecraft": "Minecraft and libraries",
-  "key.modsmemoryviewer.open": "Open Mods Memory Viewer",
-  "key.categories.modsmemoryviewer": "Mods Memory Viewer",
-  "key.category.modsmemoryviewer.keys": "Mods Memory Viewer"
+  "modsmemoryviewer.row.minecraft": "Minecraft and libraries"
 }

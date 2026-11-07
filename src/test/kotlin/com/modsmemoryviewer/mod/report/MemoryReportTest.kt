@@ -80,6 +80,21 @@ class MemoryReportTest {
     }
 
     @Test
+    fun scrollbarThumbTracksTheCursorAndStopsAtTheEnds() {
+        val content = 200
+        val view = 100
+        assertEquals(100, TableScroll.maxScroll(content, view))
+        assertEquals(50, TableScroll.thumbHeight(view, content))
+        assertEquals(10, TableScroll.thumbTop(0, view, content, 10))
+        assertEquals(60, TableScroll.thumbTop(100, view, content, 10))
+        assertEquals(0, TableScroll.scrollForThumbTop(10, 10, view, content))
+        assertEquals(100, TableScroll.scrollForThumbTop(60, 10, view, content))
+        assertEquals(100, TableScroll.clamp(500, content, view))
+        assertEquals(view, TableScroll.thumbHeight(view, 40))
+        assertEquals(0, TableScroll.scrollForThumbTop(40, 10, view, 40))
+    }
+
+    @Test
     fun liveHistogramIncludesJavaLangString() {
         val text = HistogramSource.read()
         val stats = HistogramParser.parse(text)

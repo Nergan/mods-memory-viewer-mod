@@ -122,16 +122,16 @@ jobs:
             release-split/minecraft-26.3-neoforge \
             release-split/minecraft-26.3-fabric
           printf '%s\n' "mods memory viewer for minecraft 1.21.1 neoforge" > release-split/minecraft-1.21.1-neoforge/title.txt
-          printf '%s\n' "Minecraft **1.21.1** / NeoForge. The mod jar and Kotlin for Forge are required. Open the memory table from the Mods button. The key starts unbound; \`/modsmemory\` opens the same screen. \`all-jars.zip\` contains every jar on this page." > release-split/minecraft-1.21.1-neoforge/body.md
+          printf '%s\n' "Minecraft **1.21.1** / NeoForge. The mod jar and Kotlin for Forge are required. Open the memory table from the Mods button. The corner cross closes the table, and the scrollbar can be dragged. \`all-jars.zip\` contains every jar on this page." > release-split/minecraft-1.21.1-neoforge/body.md
           cp -v release-assets/1.21.1/modsmemoryviewer-neoforge-*.jar release-assets/1.21.1/kotlinforforge-*.jar release-split/minecraft-1.21.1-neoforge/
           printf '%s\n' "mods memory viewer for minecraft 1.21.1 fabric" > release-split/minecraft-1.21.1-fabric/title.txt
-          printf '%s\n' "Minecraft **1.21.1** / Fabric. The mod is client-only. Fabric API, Fabric Language Kotlin, and Mod Menu are required. Open the memory table from the Mods button. The key starts unbound; \`/modsmemory\` opens the same screen. \`all-jars.zip\` contains every jar on this page." > release-split/minecraft-1.21.1-fabric/body.md
+          printf '%s\n' "Minecraft **1.21.1** / Fabric. The mod is client-only. Fabric API, Fabric Language Kotlin, and Mod Menu are required. Open the memory table from the Mods button. The corner cross closes the table, and the scrollbar can be dragged. \`all-jars.zip\` contains every jar on this page." > release-split/minecraft-1.21.1-fabric/body.md
           cp -v release-assets/1.21.1/modsmemoryviewer-fabric-*.jar release-assets/1.21.1/fabric-api-*.jar release-assets/1.21.1/fabric-language-kotlin-*.jar release-assets/1.21.1/modmenu-*.jar release-split/minecraft-1.21.1-fabric/
           printf '%s\n' "mods memory viewer for minecraft 26.3 neoforge" > release-split/minecraft-26.3-neoforge/title.txt
-          printf '%s\n' "Minecraft **26.3** / NeoForge. The mod jar and Kotlin for Forge 6.4 are required. Open the memory table from the Mods button. The key starts unbound; \`/modsmemory\` opens the same screen. \`all-jars.zip\` contains every jar on this page." > release-split/minecraft-26.3-neoforge/body.md
+          printf '%s\n' "Minecraft **26.3** / NeoForge. The mod jar and Kotlin for Forge 6.4 are required. Open the memory table from the Mods button. The corner cross closes the table, and the scrollbar can be dragged. \`all-jars.zip\` contains every jar on this page." > release-split/minecraft-26.3-neoforge/body.md
           cp -v release-assets/26.3/modsmemoryviewer-neoforge-*.jar release-assets/26.3/kotlinforforge-*.jar release-split/minecraft-26.3-neoforge/
           printf '%s\n' "mods memory viewer for minecraft 26.3 fabric" > release-split/minecraft-26.3-fabric/title.txt
-          printf '%s\n' "Minecraft **26.3** / Fabric. The mod is client-only. Fabric API, Fabric Language Kotlin, and Mod Menu 21 are required. Open the memory table from the Mods button. The key starts unbound; \`/modsmemory\` opens the same screen. \`all-jars.zip\` contains every jar on this page." > release-split/minecraft-26.3-fabric/body.md
+          printf '%s\n' "Minecraft **26.3** / Fabric. The mod is client-only. Fabric API, Fabric Language Kotlin, and Mod Menu 21 are required. Open the memory table from the Mods button. The corner cross closes the table, and the scrollbar can be dragged. \`all-jars.zip\` contains every jar on this page." > release-split/minecraft-26.3-fabric/body.md
           cp -v release-assets/26.3/modsmemoryviewer-fabric-*.jar release-assets/26.3/fabric-api-*.jar release-assets/26.3/fabric-language-kotlin-*.jar release-assets/26.3/modmenu-*.jar release-split/minecraft-26.3-fabric/
           python3 .github/scripts/publish-split-releases.py release-split
 

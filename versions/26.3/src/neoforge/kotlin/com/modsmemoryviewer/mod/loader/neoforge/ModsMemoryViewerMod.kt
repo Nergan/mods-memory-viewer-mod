@@ -15,7 +15,7 @@ class ModsMemoryViewerMod(modBus: IEventBus, container: ModContainer) {
         ModSources.provider = { NeoForgeModFiles.list() }
         if (FMLEnvironment.getDist() == Dist.CLIENT) {
             NeoForgeClient.init(modBus, container)
-            LOGGER.info("Mods Memory Viewer client ready. Open it from the Mods button. The key is unbound until you set it.")
+            LOGGER.info("Mods Memory Viewer client ready. Open the table from this mod's settings in the Mods button.")
         } else {
             LOGGER.info("Mods Memory Viewer measures memory on the client. This dedicated server loaded the jar and does not open a screen.")
         }

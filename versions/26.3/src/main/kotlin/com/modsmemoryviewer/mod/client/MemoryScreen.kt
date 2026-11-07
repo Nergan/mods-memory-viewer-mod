@@ -6,12 +6,14 @@ import com.modsmemoryviewer.mod.report.HeapSnapshot
 import com.modsmemoryviewer.mod.report.MemoryReport
 import com.modsmemoryviewer.mod.report.MemoryReports
 import com.modsmemoryviewer.mod.report.ModUsage
+import com.modsmemoryviewer.mod.report.TableScroll
 import com.mojang.blaze3d.platform.InputConstants
 import java.util.Locale
 import net.minecraft.client.gui.GuiGraphicsExtractor
 import net.minecraft.client.gui.components.Button
 import net.minecraft.client.gui.screens.Screen
 import net.minecraft.client.input.KeyEvent
+import net.minecraft.client.input.MouseButtonEvent
 import net.minecraft.network.chat.Component
 import org.slf4j.LoggerFactory
 
@@ -21,8 +23,15 @@ class MemoryScreen(
 ) : Screen(Component.translatable("modsmemoryviewer.screen.title")) {
     private val rows = report.rows.sortedByDescending { it.bytes }
     private var scroll = 0
+    private var dragging = false
+    private var dragGrab = 0
 
     override fun init() {
+        addRenderableWidget(
+            Button.builder(Component.translatable("modsmemoryviewer.screen.close")) { _ ->
+                onClose()
+            }.bounds(this.width - 22, 4, 16, 16).build(),
+        )
         addRenderableWidget(
             Button.builder(Component.translatable("modsmemoryviewer.screen.refresh")) { _ ->
                 refresh()
@@ -82,15 +91,14 @@ class MemoryScreen(
             return
         }
         val nameX = 12
-        val memoryRight = this.width - 72
-        val percentRight = this.width - 12
+        val memoryRight = percentRight() - 48
         val nameWidth = (memoryRight - 64 - nameX).coerceAtLeast(40)
-        graphics.fill(8, HEADER_Y - 2, this.width - 8, HEADER_Y + HEADER, HEADER_BG)
+        graphics.fill(8, HEADER_Y - 2, barX() - 2, HEADER_Y + HEADER, HEADER_BG)
         drawCell(graphics, Component.translatable("modsmemoryviewer.screen.column.mod").string, nameX, HEADER_Y, nameWidth, false)
         drawRight(graphics, Component.translatable("modsmemoryviewer.screen.column.memory").string, memoryRight, HEADER_Y)
-        drawRight(graphics, Component.translatable("modsmemoryviewer.screen.column.share").string, percentRight, HEADER_Y)
-        val listTop = HEADER_Y + HEADER + 2
-        val listBottom = this.height - 36
+        drawRight(graphics, Component.translatable("modsmemoryviewer.screen.column.share").string, percentRight(), HEADER_Y)
+        val listTop = listTop()
+        val listBottom = listBottom()
         graphics.enableScissor(0, listTop, this.width, listBottom)
         val total = rows.sumOf { it.bytes }.coerceAtLeast(1L)
         rows.forEachIndexed { index, row ->
@@ -98,20 +106,89 @@ class MemoryScreen(
             if (y + ROW < listTop || y > listBottom) {
                 return@forEachIndexed
             }
-            graphics.fill(8, y, this.width - 8, y + ROW, if (index % 2 == 0) ROW_BG else ROW_BG_ALT)
+            graphics.fill(8, y, barX() - 2, y + ROW, if (index % 2 == 0) ROW_BG else ROW_BG_ALT)
             drawCell(graphics, label(row), nameX, y + 2, nameWidth, true)
             drawRight(graphics, format(row.bytes), memoryRight, y + 2)
-            drawRight(graphics, percent(row.bytes, total), percentRight, y + 2)
+            drawRight(graphics, percent(row.bytes, total), percentRight(), y + 2)
         }
         graphics.disableScissor()
+        drawScrollbar(graphics)
         super.extractRenderState(graphics, mouseX, mouseY, partialTick)
     }
 
     override fun mouseScrolled(mouseX: Double, mouseY: Double, scrollX: Double, scrollY: Double): Boolean {
-        val view = (this.height - 36) - (HEADER_Y + HEADER + 2)
-        val max = (rows.size * ROW - view).coerceAtLeast(0)
-        scroll = (scroll - (scrollY * ROW).toInt()).coerceIn(0, max)
+        scrollBy(-(scrollY * ROW).toInt())
         return true
+    }
+
+    override fun mouseClicked(event: MouseButtonEvent, doubled: Boolean): Boolean {
+        if (super.mouseClicked(event, doubled)) {
+            return true
+        }
+        if (event.button() != 0 || report.error != null || !hitBar(event.x(), event.y())) {
+            return false
+        }
+        val top = thumbTop()
+        val height = thumbHeight()
+        if (event.y() >= top && event.y() < top + height) {
+            dragGrab = (event.y() - top).toInt()
+        } else {
+            dragGrab = height / 2
+            scrollToThumb((event.y() - dragGrab).toInt())
+        }
+        dragging = true
+        return true
+    }
+
+    override fun mouseDragged(event: MouseButtonEvent, dragX: Double, dragY: Double): Boolean {
+        if (dragging && event.button() == 0) {
+            scrollToThumb((event.y() - dragGrab).toInt())
+            return true
+        }
+        return super.mouseDragged(event, dragX, dragY)
+    }
+
+    override fun mouseReleased(event: MouseButtonEvent): Boolean {
+        if (event.button() == 0) {
+            dragging = false
+        }
+        return super.mouseReleased(event)
+    }
+
+    private fun drawScrollbar(graphics: GuiGraphicsExtractor) {
+        val top = listTop()
+        val bottom = listBottom()
+        graphics.fill(barX(), top, barX() + BAR_W, bottom, TRACK)
+        val thumb = thumbTop()
+        val color = if (dragging) THUMB_DRAG else THUMB
+        graphics.fill(barX(), thumb, barX() + BAR_W, thumb + thumbHeight(), color)
+    }
+
+    private fun listTop(): Int = HEADER_Y + HEADER + 2
+
+    private fun listBottom(): Int = this.height - 36
+
+    private fun viewHeight(): Int = (listBottom() - listTop()).coerceAtLeast(1)
+
+    private fun contentHeight(): Int = rows.size * ROW
+
+    private fun barX(): Int = this.width - 8 - BAR_W
+
+    private fun percentRight(): Int = barX() - 6
+
+    private fun thumbTop(): Int = TableScroll.thumbTop(scroll, viewHeight(), contentHeight(), listTop())
+
+    private fun thumbHeight(): Int = TableScroll.thumbHeight(viewHeight(), contentHeight())
+
+    private fun hitBar(mouseX: Double, mouseY: Double): Boolean =
+        mouseX >= barX() && mouseX < barX() + BAR_W && mouseY >= listTop() && mouseY < listBottom()
+
+    private fun scrollBy(delta: Int) {
+        scroll = TableScroll.clamp(scroll + delta, contentHeight(), viewHeight())
+    }
+
+    private fun scrollToThumb(thumbTop: Int) {
+        scroll = TableScroll.scrollForThumbTop(thumbTop, listTop(), viewHeight(), contentHeight())
     }
 
     private fun label(row: ModUsage): String {
@@ -143,10 +220,14 @@ class MemoryScreen(
         private const val ROW = 12
         private const val HEADER = 14
         private const val HEADER_Y = 36
+        private const val BAR_W = 6
         private const val WHITE = -1
         private val HEADER_BG = 0xFF243044.toInt()
         private val ROW_BG = 0xFF1A222C.toInt()
         private val ROW_BG_ALT = 0xFF141A22.toInt()
+        private val TRACK = 0xFF0E141C.toInt()
+        private val THUMB = 0xFF8AA0B8.toInt()
+        private val THUMB_DRAG = 0xFFE7EEF6.toInt()
         private const val REFRESH_GAP_NANOS = 2_000_000_000L
         private val LOGGER = LoggerFactory.getLogger(ModsMemoryViewer.MOD_ID)
         private var refreshHeld = false

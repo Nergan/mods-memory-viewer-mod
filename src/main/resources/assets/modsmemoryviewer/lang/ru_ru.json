@@ -1,13 +1,11 @@
 {
   "modsmemoryviewer.screen.title": "Mods Memory Viewer",
+  "modsmemoryviewer.screen.close": "×",
   "modsmemoryviewer.screen.refresh": "Обновить",
   "modsmemoryviewer.screen.heap": "Куча: занято %s МиБ, выделено %s МиБ, предел %s МиБ",
   "modsmemoryviewer.screen.column.mod": "Мод",
   "modsmemoryviewer.screen.column.memory": "МиБ",
   "modsmemoryviewer.screen.column.share": "%",
   "modsmemoryviewer.screen.error": "Гистограмму классов прочитать не удалось: %s",
-  "modsmemoryviewer.row.minecraft": "Minecraft и библиотеки",
-  "key.modsmemoryviewer.open": "Открыть Mods Memory Viewer",
-  "key.categories.modsmemoryviewer": "Mods Memory Viewer",
-  "key.category.modsmemoryviewer.keys": "Mods Memory Viewer"
+  "modsmemoryviewer.row.minecraft": "Minecraft и библиотеки"
 }
