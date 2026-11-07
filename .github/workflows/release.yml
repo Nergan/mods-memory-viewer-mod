@@ -117,6 +117,7 @@ jobs:
           version-type: release
           changelog: NeoForge 1.21.1. Client memory screen. Command /modsmemory.
           loaders: neoforge
+          environment: client_only
           game-versions: "1.21.1"
           java: "21"
           files: build/libs/modsmemoryviewer-neoforge-1.21.1-${{ steps.versions.outputs.mod_version }}.jar
@@ -135,6 +136,7 @@ jobs:
           version-type: release
           changelog: Fabric 1.21.1. Client-only memory screen. Command /modsmemory.
           loaders: fabric
+          environment: client_only
           game-versions: "1.21.1"
           java: "21"
           files: fabric/build/libs/modsmemoryviewer-fabric-1.21.1-${{ steps.versions.outputs.mod_version }}.jar
