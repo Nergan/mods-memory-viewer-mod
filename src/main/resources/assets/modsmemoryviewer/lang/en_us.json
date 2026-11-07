@@ -1,0 +1,11 @@
+{
+  "modsmemoryviewer.screen.title": "Mods Memory Viewer",
+  "modsmemoryviewer.screen.refresh": "Refresh",
+  "modsmemoryviewer.screen.heap": "Heap used %s, committed %s, max %s",
+  "modsmemoryviewer.screen.total": "Histogram total %s",
+  "modsmemoryviewer.screen.row": "%s — %s — %s — %s instances",
+  "modsmemoryviewer.screen.error": "Could not read the class histogram: %s",
+  "modsmemoryviewer.row.minecraft": "Minecraft and libraries",
+  "key.modsmemoryviewer.open": "Open Mods Memory Viewer",
+  "key.categories.modsmemoryviewer": "Mods Memory Viewer"
+}

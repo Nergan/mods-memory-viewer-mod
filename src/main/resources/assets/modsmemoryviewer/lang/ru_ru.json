@@ -1,0 +1,11 @@
+{
+  "modsmemoryviewer.screen.title": "Mods Memory Viewer",
+  "modsmemoryviewer.screen.refresh": "Обновить",
+  "modsmemoryviewer.screen.heap": "Куча: занято %s, выделено %s, предел %s",
+  "modsmemoryviewer.screen.total": "Сумма гистограммы %s",
+  "modsmemoryviewer.screen.row": "%s — %s — %s — экземпляров %s",
+  "modsmemoryviewer.screen.error": "Гистограмму классов прочитать не удалось: %s",
+  "modsmemoryviewer.row.minecraft": "Minecraft и библиотеки",
+  "key.modsmemoryviewer.open": "Открыть Mods Memory Viewer",
+  "key.categories.modsmemoryviewer": "Mods Memory Viewer"
+}
