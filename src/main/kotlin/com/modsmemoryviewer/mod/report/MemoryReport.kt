@@ -2,10 +2,16 @@ package com.modsmemoryviewer.mod.report
 
 import java.nio.file.Path
 
+data class NestedJar(
+    val container: Path,
+    val entry: String,
+)
+
 data class ModFile(
     val id: String,
     val label: String,
     val paths: List<Path>,
+    val nestedJars: List<NestedJar> = emptyList(),
 )
 
 data class ClassStat(

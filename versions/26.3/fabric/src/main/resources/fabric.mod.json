@@ -1,0 +1,28 @@
+{
+  "schemaVersion": 1,
+  "id": "modsmemoryviewer",
+  "version": "${version}",
+  "name": "Mods Memory Viewer",
+  "description": "Shows how much heap each mod jar accounts for. Open the table from the Mods button.",
+  "authors": ["Nergan"],
+  "contact": {
+    "homepage": "https://github.com/Nergan/mods-memory-viewer-mod",
+    "issues": "https://github.com/Nergan/mods-memory-viewer-mod/issues",
+    "sources": "https://github.com/Nergan/mods-memory-viewer-mod"
+  },
+  "license": "MPL-2.0",
+  "icon": "logo.png",
+  "environment": "client",
+  "entrypoints": {
+    "client": ["com.modsmemoryviewer.mod.loader.fabric.FabricClient"],
+    "modmenu": ["com.modsmemoryviewer.mod.loader.fabric.MemoryViewerModMenu"]
+  },
+  "depends": {
+    "fabricloader": ">=0.19.5",
+    "minecraft": "26.3",
+    "java": ">=25",
+    "fabric-api": "*",
+    "fabric-language-kotlin": ">=1.14.2+kotlin.2.4.21",
+    "modmenu": "*"
+  }
+}

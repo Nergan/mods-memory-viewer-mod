@@ -8,5 +8,6 @@
   "modsmemoryviewer.screen.error": "Could not read the class histogram: %s",
   "modsmemoryviewer.row.minecraft": "Minecraft and libraries",
   "key.modsmemoryviewer.open": "Open Mods Memory Viewer",
-  "key.categories.modsmemoryviewer": "Mods Memory Viewer"
+  "key.categories.modsmemoryviewer": "Mods Memory Viewer",
+  "key.category.modsmemoryviewer.keys": "Mods Memory Viewer"
 }

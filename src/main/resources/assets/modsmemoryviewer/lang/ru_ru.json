@@ -8,5 +8,6 @@
   "modsmemoryviewer.screen.error": "Гистограмму классов прочитать не удалось: %s",
   "modsmemoryviewer.row.minecraft": "Minecraft и библиотеки",
   "key.modsmemoryviewer.open": "Открыть Mods Memory Viewer",
-  "key.categories.modsmemoryviewer": "Mods Memory Viewer"
+  "key.categories.modsmemoryviewer": "Mods Memory Viewer",
+  "key.category.modsmemoryviewer.keys": "Mods Memory Viewer"
 }

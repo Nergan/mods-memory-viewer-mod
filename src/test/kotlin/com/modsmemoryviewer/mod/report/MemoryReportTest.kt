@@ -1,5 +1,6 @@
 package com.modsmemoryviewer.mod.report
 
+import com.modsmemoryviewer.mod.report.NestedJar
 import java.nio.file.Files
 import java.util.zip.ZipEntry
 import java.util.zip.ZipOutputStream
@@ -47,6 +48,35 @@ class MemoryReportTest {
         assertEquals(48L, byId.getValue(MemoryReport.MINECRAFT).bytes)
         assertEquals(228L, report.histogramBytes)
         assertTrue(report.rows.first().bytes >= report.rows.last().bytes)
+    }
+
+    @Test
+    fun attributesAClaimedNestedJarToThatMod() {
+        val root = Files.createTempDirectory("memory-viewer-claimed")
+        val jar = root.resolve("parent.jar")
+        val nested = zipBytes("com/example/Nested.class" to byteArrayOf(1))
+        ZipOutputStream(Files.newOutputStream(jar)).use { zip ->
+            zip.putNextEntry(ZipEntry("com/example/Parent.class"))
+            zip.write(byteArrayOf(2))
+            zip.closeEntry()
+            zip.putNextEntry(ZipEntry("META-INF/jars/inner.jar"))
+            zip.write(nested)
+            zip.closeEntry()
+        }
+        val histogram = """
+            num     #instances         #bytes  class name (module)
+            -------------------------------------------------------
+               1:             1             10  com.example.Parent
+               2:             4             20  com.example.Nested
+        """.trimIndent()
+        val mods = listOf(
+            ModFile("parent", "Parent", listOf(jar)),
+            ModFile("inner", "Inner", emptyList(), listOf(NestedJar(jar, "META-INF/jars/inner.jar"))),
+        )
+        val report = MemoryReports.attribute(mods, histogram, HeapSnapshot(1, 1, 1))
+        val byId = report.rows.associateBy { it.id }
+        assertEquals(10L, byId.getValue("parent").bytes)
+        assertEquals(20L, byId.getValue("inner").bytes)
     }
 
     @Test

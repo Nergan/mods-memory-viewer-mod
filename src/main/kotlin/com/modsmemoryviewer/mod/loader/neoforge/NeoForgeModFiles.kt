@@ -10,7 +10,11 @@ object NeoForgeModFiles {
         val files = ArrayList<ModFile>()
         for (info in ModList.get().mods) {
             val file = info.owningFile.file
-            val path: Path = file.filePath
+            val path: Path = try {
+                file.filePath
+            } catch (_: RuntimeException) {
+                continue
+            }
             if (!seen.add(path.toAbsolutePath().normalize().toString())) continue
             val infos = file.modInfos
             val id = infos.joinToString("+") { it.modId }.ifEmpty { info.modId }
