@@ -149,10 +149,10 @@ jobs:
         run: |
           python3 .github/scripts/replace-modrinth-versions.py \
             mods-memory-viewer \
-            "${{ steps.versions.outputs.mod_version }}" \
-            "${{ steps.versions.outputs.mod_version }}-fabric" \
-            "${{ steps.versions.outputs.mod_version }}+26.3" \
-            "${{ steps.versions.outputs.mod_version }}+26.3-fabric"
+            --slot "${{ steps.versions.outputs.mod_version }}" neoforge 1.21.1 \
+            --slot "${{ steps.versions.outputs.mod_version }}-fabric" fabric 1.21.1 \
+            --slot "${{ steps.versions.outputs.mod_version }}+26.3" neoforge 26.3 \
+            --slot "${{ steps.versions.outputs.mod_version }}+26.3-fabric" fabric 26.3
 
       - name: Publish Modrinth NeoForge
         if: steps.modrinth_token.outputs.present == 'true'
